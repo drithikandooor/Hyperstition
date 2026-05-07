@@ -1,0 +1,297 @@
+:root {
+  --x: 1px;
+  --col-gap: 0px;
+  --row-gap: 0px;
+  --bar-width: 172px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+@font-face {
+  font-family: 'ABC Favorit';
+  src: url('font/ABCFavorit-Regular-Trial.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'ABC Favorit';
+  src: url('font/ABCFavorit-Bold-Trial.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #ffffff;
+  font-family: 'ABC Favorit', Helvetica, Arial, sans-serif;
+}
+
+/* ── TOOLBAR ── */
+#toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--bar-width);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  padding: 0;
+  background: #ffffff;
+  border-right: 1px solid #d0d0d0;
+  overflow-y: auto;
+}
+
+/* section dividers */
+.tool-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 14px;
+  border-bottom: 1px solid #d8d8d8;
+}
+
+.tool-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #999;
+  text-transform: uppercase;
+  white-space: nowrap;
+  margin-bottom: 2px;
+}
+
+/* ── BUTTONS ── */
+.btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.btn {
+  background: transparent;
+  border: none;
+  color: #555;
+  font-family: 'ABC Favorit', Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  padding: 3px 0;
+  margin-right: 8px;
+  cursor: pointer;
+  transition: color 0.1s;
+  white-space: nowrap;
+  position: relative;
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: transparent;
+  transition: background 0.1s;
+}
+
+.btn:hover { color: #000; }
+.btn:hover::after { background: #bbb; }
+
+.btn.active {
+  color: #000;
+  font-weight: 700;
+}
+
+.btn.active::after {
+  background: #000;
+}
+
+/* ── SLIDERS ── */
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 1px;
+  background: #ccc;
+  outline: none;
+  cursor: pointer;
+  margin: 4px 0;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 10px;
+  height: 10px;
+  background: #000;
+  border-radius: 50%;
+}
+
+input[type="range"]:hover {
+  background: #aaa;
+}
+
+.density-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  color: #888;
+  width: 100%;
+}
+
+.density-row span:first-child {
+  min-width: 26px;
+  font-size: 10px;
+  color: #888;
+}
+
+.density-row span:last-child {
+  min-width: 22px;
+  font-size: 10px;
+  color: #000;
+  text-align: right;
+}
+
+.density-row input { flex: 1; }
+
+#scale-val, #wave-size-val, #wave-freq-val, #wave-pos-val {
+  color: #000;
+  font-size: 10px;
+}
+
+/* ── BOTTOM ACTIONS ── */
+.toolbar-bottom {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border-top: 1px solid #d0d0d0;
+}
+
+#refresh-btn, #svg-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #d8d8d8;
+  color: #555;
+  font-family: 'ABC Favorit', Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all 0.1s;
+  letter-spacing: 0.02em;
+  width: 100%;
+  text-align: left;
+}
+
+#refresh-btn:hover, #svg-btn:hover {
+  color: #000;
+  background: #eaeaea;
+}
+
+#svg-btn { border-bottom: none; }
+
+/* ── CANVAS ── */
+#stack {
+  position: fixed;
+  top: 0;
+  left: var(--bar-width);
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: row;
+  gap: var(--col-gap);
+}
+
+#stack.horizontal { flex-direction: column; }
+
+#stack.diagonal {
+  display: block;
+  overflow: hidden;
+}
+
+.column {
+  position: relative;
+  width: calc(40 * var(--x));
+  flex-shrink: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--row-gap);
+}
+
+#stack.horizontal .column {
+  width: 100%;
+  height: calc(40 * var(--x));
+  flex-direction: row;
+  flex-shrink: 0;
+}
+
+.column-line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  height: 100%;
+  width: calc(2 * var(--x));
+  transform: translateX(-50%);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+.scene {
+  position: relative;
+  width: calc(40 * var(--x));
+  height: calc(203 * var(--x));
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#stack.horizontal .scene {
+  width: calc(203 * var(--x));
+  height: calc(40 * var(--x));
+}
+
+.layer { position: absolute; }
+
+.layer-2 {
+  width: calc(10 * var(--x)); height: calc(50 * var(--x));
+  background-color: var(--layer2-color); opacity: 0.75;
+  mix-blend-mode: multiply; z-index: 4;
+}
+.layer-3 {
+  width: calc(10 * var(--x)); height: calc(160 * var(--x));
+  background-color: var(--layer3-color); opacity: 0.9;
+  mix-blend-mode: multiply; z-index: 3;
+}
+.layer-4 {
+  width: calc(20 * var(--x)); height: calc(101 * var(--x));
+  background-color: var(--layer4-color); opacity: 0.9;
+  mix-blend-mode: multiply; z-index: 2;
+}
+.layer-5 {
+  width: calc(30 * var(--x)); height: calc(50 * var(--x));
+  background-color: var(--layer5-color); opacity: 0.4;
+  mix-blend-mode: multiply; z-index: 1;
+}
+.layer-6 {
+  width: calc(40 * var(--x)); height: calc(50 * var(--x));
+  background-color: var(--layer6-color); opacity: 0.25;
+  mix-blend-mode: multiply; z-index: 0;
+}
+
+#stack.horizontal .layer-2 { width: calc(50 * var(--x)); height: calc(10 * var(--x)); }
+#stack.horizontal .layer-3 { width: calc(160 * var(--x)); height: calc(10 * var(--x)); }
+#stack.horizontal .layer-4 { width: calc(101 * var(--x)); height: calc(20 * var(--x)); }
+#stack.horizontal .layer-5 { width: calc(50 * var(--x)); height: calc(30 * var(--x)); }
+#stack.horizontal .layer-6 { width: calc(50 * var(--x)); height: calc(40 * var(--x)); }
+#stack.horizontal .column-line { left: 0; top: 50%; width: 100%; height: calc(2 * var(--x)); transform: translateY(-50%); }
