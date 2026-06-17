@@ -1,102 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Layered Forms</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <nav id="toolbar">
-
-    <div class="tool-group">
-      <span class="tool-label">Direction</span>
-      <div class="btn-group" id="orientation">
-        <button class="btn active" data-value="vertical">Vert</button>
-        <button class="btn" data-value="horizontal">Horiz</button>
-      </div>
-    </div>
-
-    <div class="tool-group">
-      <span class="tool-label">Type</span>
-      <div class="btn-group" id="pattern">
-        <button class="btn active" data-value="alternating">Alternating</button>
-        <button class="btn" data-value="straight">Straight</button>
-        <button class="btn" data-value="wave">Wave</button>
-        <button class="btn" data-value="diagonal">45°</button>
-      </div>
-    </div>
-
-    <div class="tool-group" id="wave-controls" style="display:none">
-      <span class="tool-label">Wave</span>
-      <div class="btn-group" id="wavetype">
-        <button class="btn active" data-value="sine">Sine</button>
-        <button class="btn" data-value="triangle">Tri</button>
-        <button class="btn" data-value="square">Square</button>
-        <button class="btn" data-value="sawtooth">Saw</button>
-        <button class="btn" data-value="bell">Bell</button>
-      </div>
-      <div class="density-row">
-        <span>Amp</span>
-        <input type="range" id="wave-size" min="0" max="1" step="0.05" value="0">
-        <span id="wave-size-val">0%</span>
-      </div>
-      <div class="density-row">
-        <span>Freq</span>
-        <input type="range" id="wave-freq" min="0.25" max="5" step="0.25" value="1">
-        <span id="wave-freq-val">1.0</span>
-      </div>
-      <div class="density-row">
-        <span>Pos</span>
-        <input type="range" id="wave-pos" min="0" max="1" step="0.05" value="0.5">
-        <span id="wave-pos-val">50%</span>
-      </div>
-    </div>
-
-    <div class="tool-group">
-      <span class="tool-label">Color</span>
-      <div class="btn-group" id="colormode">
-        <button class="btn active" data-value="multi">Multi</button>
-        <button class="btn" data-value="mono">Mono</button>
-        <button class="btn" data-value="twotone">2-Tone</button>
-      </div>
-    </div>
-
-    <div class="tool-group">
-      <span class="tool-label">Scale <span id="scale-val">1.00×</span></span>
-      <input type="range" id="scale" min="0.25" max="1.5" step="0.05" value="1">
-    </div>
-
-    <div class="tool-group">
-      <span class="tool-label">Density</span>
-      <div class="density-row">
-        <span>Cols</span>
-        <input type="range" id="col-gap" min="0" max="80" step="1" value="0">
-        <span id="col-gap-val">0</span>
-      </div>
-      <div class="density-row">
-        <span>Rows</span>
-        <input type="range" id="row-gap" min="0" max="80" step="1" value="0">
-        <span id="row-gap-val">0</span>
-      </div>
-    </div>
-
-    <div class="tool-group">
-      <span class="tool-label">Layers</span>
-      <div class="btn-group" id="layer1toggle">
-        <button class="btn active" data-value="on">L1 On</button>
-        <button class="btn" data-value="off">L1 Off</button>
-      </div>
-    </div>
-
-    <div class="toolbar-bottom">
-      <button id="refresh-btn">↺ Refresh</button>
-      <button id="svg-btn">↓ SVG</button>
-    </div>
-
-  </nav>
-
-  <div id="stack"></div>
-  <script src="script.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hyperstition</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+  </head>
+  <body>
+    <div id="canvas-container"></div>
+    <script src="sketch.js"></script>
+  </body>
 </html>
