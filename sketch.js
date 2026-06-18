@@ -4,17 +4,20 @@ const GRID_LINES = 20;
 
 let cw, ch;
 
-let spineS       = [];
-let spineFlipped = [];
-let spinePalette = [];
-let spinePalLerp = [];
+let spineS         = [];
+let spineFlipped   = [];
+let spinePalette   = [];
+let spinePalLerp   = [];
 let spineY         = [];
 let spineRandY     = [];
 let spineRandH     = [];
 let spineHeightF   = [];
 let spineHeightF5  = [];
+let waveHeightF4   = [];
+let waveHeightF5   = [];
+let spineRestS     = [];  // wave-only s, never mouse-boosted — used for palette flip
 
-let introFade = 0;
+let introFade   = 0;
 let wasInCanvas = false;
 
 const COOL = {
@@ -50,15 +53,9 @@ function blendPalette(t) {
       center: lerpHex(COOL.l2.center, WARM.l2.center, t),
       mid:    lerpHex(COOL.l2.mid,    WARM.l2.mid,    t),
     },
-    l3: {
-      center: lerpHex(COOL.l3.center, WARM.l3.center, t),
-    },
-    l4: {
-      center: lerpHex(COOL.l4.center, WARM.l4.center, t),
-    },
-    l5: {
-      center: lerpHex(COOL.l5.center, WARM.l5.center, t),
-    },
+    l3: { center: lerpHex(COOL.l3.center, WARM.l3.center, t) },
+    l4: { center: lerpHex(COOL.l4.center, WARM.l4.center, t) },
+    l5: { center: lerpHex(COOL.l5.center, WARM.l5.center, t) },
   };
 }
 
@@ -76,6 +73,9 @@ function setup() {
     spineRandH.push(random(0.3, 1.0));
     spineHeightF.push(0);
     spineHeightF5.push(0);
+    waveHeightF4.push(0);
+    waveHeightF5.push(0);
+    spineRestS.push(0);
   }
   loop();
 }
@@ -102,8 +102,8 @@ function scaleToWindow() {
 function draw() {
   background(255);
 
-  const u   = cw / ASPECT_W * 6;
-  const t   = millis() / 1000;
+  const u = cw / ASPECT_W * 6;
+  const t = millis() / 1000;
 
   introFade = constrain(introFade + 0.012, 0, 1);
   const paletteActive = introFade > 0.95;
@@ -127,12 +127,13 @@ function draw() {
   const margin   = maxHalfW;
   const spread   = cw - margin * 2;
 
-  for (let i = 0; i <= GRID_LINES; i++) {
-    const x = margin + (i / GRID_LINES) * spread;
+  const L4_THRESH = 0.70;
+  const L5_THRESH = 0.85;
 
+  for (let i = 0; i <= GRID_LINES; i++) {
+    const x           = margin + (i / GRID_LINES) * spread;
     const spineOffset = (i / GRID_LINES) * TWO_PI * 2;
-    const rawSine     = sin(wavePhase - spineOffset);
-    const osc         = map(rawSine, -1, 1, 0, 1);
+    const osc         = map(sin(wavePhase - spineOffset), -1, 1, 0, 1);
 
     let mouseBoost = 0;
     if (mouseInCanvas) {
@@ -142,13 +143,11 @@ function draw() {
     }
 
     const targetS = constrain(max(osc, mouseBoost), 0, 1) * introFade;
-    spineS[i] += (targetS - spineS[i]) * 0.04;
+    spineS[i] += (targetS - spineS[i]) * 0.12;
     const s = constrain(spineS[i], 0, 1);
 
     if (paletteActive) {
-      // Only flip when mouse is outside — osc genuinely reaches near 0 then
-      // When mouse is inside, mouseBoost keeps s elevated so trough never happens visually
-      const isThin = !mouseInCanvas && osc < 0.001;
+      const isThin = osc < 0.001 && s < 0.05;
       if (isThin && !spineFlipped[i]) {
         spinePalette[i] = 1 - spinePalette[i];
         spineFlipped[i] = true;
@@ -170,8 +169,8 @@ function draw() {
 
     const heightTarget = mouseInCanvas ? mouseBoost : 0;
     spineHeightF[i]   += (heightTarget - spineHeightF[i]) * 0.04;
-    const hf           = spineHeightF[i];
-    const hf4          = hf * hf;
+    const hf  = spineHeightF[i];
+    const hf4 = hf * hf;
 
     let mouseBoost5 = 0;
     if (mouseInCanvas) {
@@ -181,18 +180,27 @@ function draw() {
     }
     const heightTarget5 = mouseInCanvas ? mouseBoost5 : 0;
     spineHeightF5[i]   += (heightTarget5 - spineHeightF5[i]) * 0.02;
-    const hf5           = sqrt(spineHeightF5[i]);
+    const hf5 = sqrt(spineHeightF5[i]);
+
+    const waveTarget4 = constrain((osc - L4_THRESH) / (1.0 - L4_THRESH), 0, 1);
+    const waveTarget5 = constrain((osc - L5_THRESH) / (1.0 - L5_THRESH), 0, 1);
+
+    waveHeightF4[i] += (waveTarget4 - waveHeightF4[i]) * 0.008;
+    waveHeightF5[i] += (waveTarget5 - waveHeightF5[i]) * 0.005;
+
+    const drive4 = max(hf4, waveHeightF4[i]);
+    const drive5 = max(hf5, waveHeightF5[i]);
 
     const h1Dynamic = lerp(h1 * 2.4, h1 * 5.0, hf) * spineRandH[i];
-    const h4Dynamic = lerp(0, h1Dynamic * (2/3), hf4);
-    const h5Dynamic = lerp(0, h4Dynamic * (2/3), hf5);
+    const h4Dynamic = lerp(0, h1Dynamic * (2/3), drive4);
+    const h5Dynamic = lerp(0, h4Dynamic * (2/3), drive5);
 
     const randScale = mouseInCanvas ? 0.25 : 1.0;
-    const targetY = mouseInCanvas ? mouseY + spineRandY[i] * randScale : ch / 2 + spineRandY[i];
-    spineY[i]    += (targetY - spineY[i]) * easeRate;
-    const cy12    = constrain(spineY[i], h1Dynamic / 2, ch - h1Dynamic / 2);
-    const cy4     = constrain(spineY[i], h4Dynamic / 2, ch - h4Dynamic / 2);
-    const cy5     = constrain(spineY[i], h5Dynamic / 2, ch - h5Dynamic / 2);
+    const targetY   = mouseInCanvas ? mouseY + spineRandY[i] * randScale : ch / 2 + spineRandY[i];
+    spineY[i]      += (targetY - spineY[i]) * easeRate;
+    const cy12 = constrain(spineY[i], h1Dynamic / 2, ch - h1Dynamic / 2);
+    const cy4  = constrain(spineY[i], h4Dynamic / 2, ch - h4Dynamic / 2);
+    const cy5  = constrain(spineY[i], h5Dynamic / 2, ch - h5Dynamic / 2);
 
     noStroke();
     rectMode(CENTER);
@@ -200,13 +208,13 @@ function draw() {
     if (h5Dynamic > h1Dynamic * 0.05) {
       fill(pal.l5.center);
       const h5wf = constrain((h5Dynamic - h1Dynamic * 0.05) / (h1Dynamic * 0.05), 0, 1);
-      rect(x, cy5, w(54) * h5wf, h5Dynamic);
+      rect(x, cy5, lerp(w(30), w(54), h5wf), h5Dynamic);
     }
 
     if (h4Dynamic > h1Dynamic * 0.1) {
       fill(pal.l4.center);
       const h4wf = constrain((h4Dynamic - h1Dynamic * 0.1) / (h1Dynamic * 0.1), 0, 1);
-      rect(x, cy4, w(42) * h4wf, h4Dynamic);
+      rect(x, cy4, lerp(w(30), w(42), h4wf), h4Dynamic);
     }
 
     fill(pal.l3.center);
