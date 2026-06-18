@@ -110,17 +110,17 @@ function draw() {
 
   const mouseInCanvas = mouseX > 0 && mouseX < cw && mouseY > 0 && mouseY < ch;
 
-  if (wasInCanvas && !mouseInCanvas) {
-    for (let i = 0; i <= GRID_LINES; i++) {
-      spineRandY[i] = random(-ch * 0.26, ch * 0.26);
-    }
-  }
+  // if (wasInCanvas && !mouseInCanvas) {
+  //   for (let i = 0; i <= GRID_LINES; i++) {
+  //     spineRandY[i] = random(-ch * 0.1, ch * 0.1);
+  //   }
+  // }
   wasInCanvas = mouseInCanvas;
 
   const h1 = ch / 4;
   const h3 = ch;
 
-  const waveSpeed = 0.35;
+  const waveSpeed = 0.25;
   const wavePhase = t * waveSpeed * TWO_PI;
 
   const maxHalfW = 54 * u / 6 / 2;
@@ -138,7 +138,7 @@ function draw() {
     let mouseBoost = 0;
     if (mouseInCanvas) {
       const d  = abs(mouseX - x);
-      const tv = constrain(1 - d / (cw * 0.3), 0, 1);
+      const tv = constrain(1 - d / (cw * 0.25), 0, 1);
       mouseBoost = tv * tv * (3 - 2 * tv);
     }
 
@@ -165,10 +165,10 @@ function draw() {
     const mouseSpineIdx = mouseInCanvas ? constrain((mouseX / cw) * GRID_LINES, 0, GRID_LINES) : i;
     const spineDist     = abs(i - mouseSpineIdx);
     const lagFactor     = constrain(spineDist / (GRID_LINES / 2), 0, 1);
-    const easeRate      = mouseInCanvas ? lerp(0.015, 0.003, lagFactor) : 0.006;
+    const easeRate      = mouseInCanvas ? lerp(0.06, 0.01, lagFactor) : 0.05;
 
     const heightTarget = mouseInCanvas ? mouseBoost : 0;
-    spineHeightF[i]   += (heightTarget - spineHeightF[i]) * 0.04;
+    spineHeightF[i]   += (heightTarget - spineHeightF[i]) * 0.10;
     const hf  = spineHeightF[i];
     const hf4 = hf * hf;
 
@@ -179,21 +179,21 @@ function draw() {
       mouseBoost5 = tv5 * tv5 * (3 - 2 * tv5);
     }
     const heightTarget5 = mouseInCanvas ? mouseBoost5 : 0;
-    spineHeightF5[i]   += (heightTarget5 - spineHeightF5[i]) * 0.02;
+    spineHeightF5[i]   += (heightTarget5 - spineHeightF5[i]) * 0.08;
     const hf5 = sqrt(spineHeightF5[i]);
 
     const waveTarget4 = constrain((osc - L4_THRESH) / (1.0 - L4_THRESH), 0, 1);
     const waveTarget5 = constrain((osc - L5_THRESH) / (1.0 - L5_THRESH), 0, 1);
 
-    waveHeightF4[i] += (waveTarget4 - waveHeightF4[i]) * 0.008;
-    waveHeightF5[i] += (waveTarget5 - waveHeightF5[i]) * 0.005;
+   waveHeightF4[i] += (waveTarget4 - waveHeightF4[i]) * 0.06;
+  waveHeightF5[i] += (waveTarget5 - waveHeightF5[i]) * 0.06;
 
     const drive4 = max(hf4, waveHeightF4[i]);
     const drive5 = max(hf5, waveHeightF5[i]);
 
-    const h1Dynamic = lerp(h1 * 2.4, h1 * 5.0, hf) * spineRandH[i];
-    const h4Dynamic = lerp(0, h1Dynamic * (2/3), drive4);
-    const h5Dynamic = lerp(0, h4Dynamic * (2/3), drive5);
+    const h1Dynamic = lerp(h1 * 2.4, h1 * 3.5, hf) * spineRandH[i];
+    const h4Dynamic = h1Dynamic * (1/2);
+    const h5Dynamic = h4Dynamic * (1/2);
 
     const randScale = mouseInCanvas ? 0.25 : 1.0;
     const targetY   = mouseInCanvas ? mouseY + spineRandY[i] * randScale : ch / 2 + spineRandY[i];
@@ -206,15 +206,13 @@ function draw() {
     rectMode(CENTER);
 
     if (h5Dynamic > h1Dynamic * 0.05) {
-      fill(pal.l5.center);
-      const h5wf = constrain((h5Dynamic - h1Dynamic * 0.05) / (h1Dynamic * 0.05), 0, 1);
-      rect(x, cy5, lerp(w(30), w(54), h5wf), h5Dynamic);
+    fill(pal.l5.center);
+    rect(x, cy5, lerp(w(30), w(54), drive5), h5Dynamic);
     }
 
     if (h4Dynamic > h1Dynamic * 0.1) {
       fill(pal.l4.center);
-      const h4wf = constrain((h4Dynamic - h1Dynamic * 0.1) / (h1Dynamic * 0.1), 0, 1);
-      rect(x, cy4, lerp(w(30), w(42), h4wf), h4Dynamic);
+      rect(x, cy4, lerp(w(30), w(42), drive4), h4Dynamic);
     }
 
     fill(pal.l3.center);
