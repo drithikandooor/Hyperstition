@@ -165,7 +165,7 @@ function draw() {
     const mouseSpineIdx = mouseInCanvas ? constrain((mouseX / cw) * GRID_LINES, 0, GRID_LINES) : i;
     const spineDist     = abs(i - mouseSpineIdx);
     const lagFactor     = constrain(spineDist / (GRID_LINES / 2), 0, 1);
-    const easeRate      = mouseInCanvas ? lerp(0.06, 0.01, lagFactor) : 0.05;
+    const easeRate      = mouseInCanvas ? lerp(0.04, 0.008, lagFactor) : 0.05;
 
     const heightTarget = mouseInCanvas ? mouseBoost : 0;
     spineHeightF[i]   += (heightTarget - spineHeightF[i]) * 0.10;
@@ -189,7 +189,7 @@ function draw() {
   waveHeightF5[i] += (waveTarget5 - waveHeightF5[i]) * 0.06;
 
     const drive4 = max(hf4, waveHeightF4[i]);
-    const drive5 = max(hf5, waveHeightF5[i]);
+    const drive5 = hf5;
 
     const h1Dynamic = lerp(h1 * 2.4, h1 * 3.5, hf) * spineRandH[i];
     const h4Dynamic = h1Dynamic * (1/2);
