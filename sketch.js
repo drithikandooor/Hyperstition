@@ -132,7 +132,7 @@ function draw() {
 
     const spineOffset = (i / GRID_LINES) * TWO_PI * 2;
     const rawSine     = sin(wavePhase - spineOffset);
-    const osc         = map(rawSine, -1, 1, 0, 0.9);
+    const osc         = map(rawSine, -1, 1, 0, 1);
 
     let mouseBoost = 0;
     if (mouseInCanvas) {
